@@ -7,7 +7,7 @@ import jakarta.persistence.*;
 import java.io.IOException;
 import java.time.LocalTime;
 
-@WebServlet("/TaskServlet")
+@WebServlet("/task")
 public class TaskServlet extends HttpServlet {
 
     private EntityManagerFactory emf = Persistence.createEntityManagerFactory("dailyplannerPU");

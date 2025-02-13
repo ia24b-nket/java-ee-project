@@ -3,16 +3,16 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 
 <%
-    // Session prüfen
+    // Session check
     HttpSession sessionUser = request.getSession(false);
     if (sessionUser == null || sessionUser.getAttribute("username") == null) {
-        response.sendRedirect("login.jsp");
+        response.sendRedirect("login.jsp"); // Redirect to login page if session is invalid
         return;
     }
 
     String username = (String) sessionUser.getAttribute("username");
 
-    // Datenbankverbindung
+    // Database connection
     Connection conn = null;
     PreparedStatement stmt = null;
     ResultSet rs = null;
@@ -21,7 +21,7 @@
         Class.forName("com.mysql.cj.jdbc.Driver");
         conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/DailyPlanner", "root", "AngelTBSXxxX_1");
 
-        // Alle Tasks des eingeloggten Benutzers abrufen
+        // Retrieve tasks for logged-in user
         String sql = "SELECT taskId, title, timeSlot FROM Tasks WHERE userId = (SELECT userId FROM Users WHERE username = ?)";
         stmt = conn.prepareStatement(sql);
         stmt.setString(1, username);

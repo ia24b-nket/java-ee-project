@@ -3,10 +3,8 @@
 
 <%
     HttpSession sess = request.getSession(false);
-    int userId = (sess != null && sess.getAttribute("userId") != null) ? (int) sess.getAttribute("userId") : -1;
-
-    if (userId == -1) {
-        response.sendRedirect("login.jsp");
+    if (sess == null || sess.getAttribute("userId") == null) {
+        response.sendRedirect("login.jsp"); // Redirect to login page if session is invalid
         return;
     }
 %>
