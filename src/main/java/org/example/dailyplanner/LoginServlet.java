@@ -1,68 +1,65 @@
 package org.example.dailyplanner;
 
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.*;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.LocalDateTime;
 
-@WebServlet("/login")
+@WebServlet(name = "login", value = "/login")
 public class LoginServlet extends HttpServlet {
 
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String email = request.getParameter("email");
-        String password = request.getParameter("password");
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String username = req.getParameter("user");
+        String password = req.getParameter("password");
+        String logTimeParam = req.getParameter("logTime");
 
-        System.out.println("LoginServlet wurde aufgerufen!");
-        System.out.println("E-Mail: " + email);
-        System.out.println("Passwort: " + password);
+        LocalDateTime logTime = (logTimeParam != null && !logTimeParam.isEmpty())
+                ? LocalDateTime.parse(logTimeParam)
+                : LocalDateTime.now();
 
-        try (Connection conn = new DBConnection().getConnection()) {
-            if (conn == null) {
-                request.setAttribute("error", "Datenbankverbindung fehlgeschlagen!");
-                request.getRequestDispatcher("login.jsp").forward(request, response);
-                return;
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            // Verbindung zur MySQL-Datenbank
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/DailyPlanner", "root", ""); // Falls nötig, Passwort anpassen
+
+            // Benutzer in der Datenbank suchen
+            String sql = "SELECT userId, username FROM Users WHERE username = ? AND password = ?";
+            stmt = conn.prepareStatement(sql);
+            stmt.setString(1, username);
+            stmt.setString(2, password);
+            rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                // Benutzer gefunden -> Session erstellen
+                HttpSession session = req.getSession();
+                session.setAttribute("username", rs.getString("username"));
+                session.setAttribute("userId", rs.getInt("userId"));
+                session.setAttribute("loginTime", logTime);
+
+                // Weiterleitung zum Dashboard
+                resp.sendRedirect("dashboard.jsp");
+            } else {
+                // Benutzer nicht gefunden
+                req.setAttribute("error", "Invalid username or password");
+                RequestDispatcher rd = req.getRequestDispatcher("login.jsp");
+                rd.forward(req, resp);
             }
-
-            String sql = "SELECT userId, username FROM Users WHERE email = ? AND password = ?";
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setString(1, email);
-                stmt.setString(2, password);
-                try (ResultSet rs = stmt.executeQuery()) {
-                    if (rs.next()) {
-
-                        HttpSession session = request.getSession();
-                        session.setAttribute("userId", rs.getInt("userId"));
-                        session.setAttribute("username", rs.getString("username"));
-
-                        System.out.println("🔹 Session gespeichert für: " + session.getAttribute("username"));
-
-                        response.resetBuffer();
-
-
-                        try {
-                            response.sendRedirect("./dashboard.jsp");
-                        } catch (Exception e) {
-                            System.out.println("sendRedirect() fehlgeschlagen, versuche forward()...");
-                            request.getRequestDispatcher("dashboard.jsp").forward(request, response);
-                        }
-                    } else {
-
-                        request.setAttribute("error", "Ungültige E-Mail oder Passwort!");
-                        request.getRequestDispatcher("login.jsp").forward(request, response);
-                    }
-                }
-            }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("error", "Datenbankfehler: " + e.getMessage());
-            request.getRequestDispatcher("login.jsp").forward(request, response);
+            req.setAttribute("error", "Internal server error");
+            RequestDispatcher rd = req.getRequestDispatcher("login.jsp");
+            rd.forward(req, resp);
+        } finally {
+            try { if (rs != null) rs.close(); } catch (SQLException ignored) {}
+            try { if (stmt != null) stmt.close(); } catch (SQLException ignored) {}
+            try { if (conn != null) conn.close(); } catch (SQLException ignored) {}
         }
     }
 }

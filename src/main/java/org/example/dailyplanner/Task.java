@@ -2,6 +2,8 @@ package org.example.dailyplanner;
 
 import jakarta.persistence.*;
 
+import java.time.LocalTime;
+
 @Entity
 @Table(name = "Tasks")
 public class Task {
@@ -21,7 +23,7 @@ public class Task {
     private String description;
 
     @Column(nullable = false)
-    private String timeSlot;  // Zeit als String speichern, falls notwendig
+    private LocalTime timeSlot;  // Zeit als String speichern, falls notwendig
 
     @Column(nullable = false)
     private boolean completed = false;
@@ -61,11 +63,11 @@ public class Task {
         this.description = description;
     }
 
-    public String getTimeSlot() {
+    public LocalTime getTimeSlot() {
         return timeSlot;
     }
 
-    public void setTimeSlot(String timeSlot) {
+    public void setTimeSlot(LocalTime timeSlot) {
         this.timeSlot = timeSlot;
     }
 
