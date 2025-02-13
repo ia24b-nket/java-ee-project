@@ -6,7 +6,7 @@
     // Session check
     HttpSession sessionUser = request.getSession(false);
     if (sessionUser == null || sessionUser.getAttribute("username") == null) {
-        response.sendRedirect("login.jsp"); // Redirect to login page if session is invalid
+        response.sendRedirect("login.jsp");
         return;
     }
 
@@ -21,7 +21,7 @@
         Class.forName("com.mysql.cj.jdbc.Driver");
         conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/DailyPlanner", "root", "AngelTBSXxxX_1");
 
-        // Retrieve tasks for logged-in user
+        // Retrieve tasks for logged in user
         String sql = "SELECT taskId, title, timeSlot FROM Tasks WHERE userId = (SELECT userId FROM Users WHERE username = ?)";
         stmt = conn.prepareStatement(sql);
         stmt.setString(1, username);
@@ -40,40 +40,42 @@
 <body>
 
 <!-- Header -->
-<div class="container mt-3">
-    <div class="d-flex justify-content-between align-items-center">
-        <h2>FEBRUARY 7 2025</h2>
-        <a href="logout.jsp" class="btn btn-danger">Logout</a>
-    </div>
+<div class="header">
+    <h2>USER DASHBOARD</h2>
 </div>
 
 <!-- Dashboard -->
-<div class="container mt-4">
-    <div class="row">
-        <!-- Schedule Section -->
-        <div class="col-md-8">
-            <h3>SCHEDULE</h3>
-            <form action="updateSchedule" method="post">
-                <%
-                    while (rs.next()) {
-                %>
-                <div class="d-flex align-items-center mb-3">
-                    <input type="text" class="form-control me-2" name="title" value="<%= rs.getString("title") %>" required>
-                    <input type="time" class="form-control me-2" name="timeSlot" value="<%= rs.getTime("timeSlot").toString().substring(0,5) %>" required>
-                    <input type="hidden" name="taskId" value="<%= rs.getInt("taskId") %>">
-                    <button type="submit" class="btn btn-primary me-2">Edit</button>
-                    <a href="deleteTask?taskId=<%= rs.getInt("taskId") %>" class="btn btn-danger">X</a>
-                </div>
-                <%
-                    }
-                %>
-            </form>
+<div class="dashboard">
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <h3>FEBRUARY 7 2025</h3>
+            <a href="logout.jsp" class="button">Logout</a>
         </div>
 
-        <!-- Add Task Section -->
-        <div class="col-md-4">
-            <div class="d-grid">
-                <a href="newTask.jsp" class="btn btn-success btn-lg">+ Add New Task</a>
+        <div class="row">
+            <!-- Schedule Section -->
+            <div class="schedule">
+                <h3>SCHEDULE</h3>
+                <form action="updateSchedule" method="post">
+                    <%
+                        while (rs.next()) {
+                    %>
+                    <div class="time-slot">
+                        <input type="text" name="title" value="<%= rs.getString("title") %>" required>
+                        <input type="time" name="timeSlot" value="<%= rs.getTime("timeSlot").toString().substring(0, 5) %>" required>
+                        <input type="hidden" name="taskId" value="<%= rs.getInt("taskId") %>">
+                        <button type="submit" class="button">Edit</button>
+                        <a href="deleteTask?taskId=<%= rs.getInt("taskId") %>" class="delete-btn">X</a>
+                    </div>
+                    <%
+                        }
+                    %>
+                </form>
+            </div>
+
+            <!-- Add Task Section -->
+            <div class="add-task">
+                <a href="newTask.jsp" class="button">+ Add New Task</a>
             </div>
         </div>
     </div>
