@@ -17,7 +17,8 @@ public class TaskServlet extends HttpServlet {
 
         String title = request.getParameter("title");
         String description = request.getParameter("description");
-        String timeSlotStr = request.getParameter("timeSlot");
+        String startTimeStr = request.getParameter("startTime");  // Fix: startTime statt timeSlot
+        String endTimeStr = request.getParameter("endTime");      // Fix: endTime hinzugefügt
         String username = (String) request.getSession().getAttribute("username");
 
         EntityManager em = emf.createEntityManager();
@@ -25,20 +26,28 @@ public class TaskServlet extends HttpServlet {
         try {
             em.getTransaction().begin();
 
-            User user = em.createQuery("SELECT u FROM User u WHERE u.username = :username", User.class)
-                    .setParameter("username", username)
-                    .getSingleResult();
+            User user;
+            try {
+                user = em.createQuery("SELECT u FROM User u WHERE u.username = :username", User.class)
+                        .setParameter("username", username)
+                        .getSingleResult();
+            } catch (NoResultException e) {
+                response.sendRedirect("error.jsp");
+                return;
+            }
 
             Task task = new Task();
             task.setTitle(title);
             task.setDescription(description);
-            task.setTimeSlot(LocalTime.parse(timeSlotStr));
+            task.setStartTime(LocalTime.parse(startTimeStr));
+            task.setEndTime(LocalTime.parse(endTimeStr));
             task.setUser(user);
+            task.setCompleted(false);
 
             em.persist(task);
             em.getTransaction().commit();
 
-            response.sendRedirect("newTask.jsp");
+            response.sendRedirect("dashboard.jsp");
         } catch (Exception e) {
             e.printStackTrace();
             response.sendRedirect("error.jsp");

@@ -1,5 +1,7 @@
 <%@ page import="jakarta.servlet.http.HttpSession" %>
-<%@ page import="java.sql.*" %>
+<%@ page import="java.util.List" %>
+<%@ page import="org.example.dailyplanner.TaskDAO" %>
+<%@ page import="org.example.dailyplanner.Task" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
 
 <%
@@ -12,20 +14,9 @@
 
     String username = (String) sessionUser.getAttribute("username");
 
-    // Database connection
-    Connection conn = null;
-    PreparedStatement stmt = null;
-    ResultSet rs = null;
-
-    try {
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/DailyPlanner", "root", "AngelTBSXxxX_1");
-
-        // Retrieve tasks for logged in user
-        String sql = "SELECT taskId, title, timeSlot FROM Tasks WHERE userId = (SELECT userId FROM Users WHERE username = ?)";
-        stmt = conn.prepareStatement(sql);
-        stmt.setString(1, username);
-        rs = stmt.executeQuery();
+    // Retrieve tasks for logged-in user
+    TaskDAO taskDAO = new TaskDAO(DatabaseConnection.getConnection()); // Fix: Connection übergeben
+    List<Task> tasks = taskDAO.getTasksByUsername(username); // Fix: ResultSet durch List<Task> ersetzt
 %>
 
 <!DOCTYPE html>
@@ -58,14 +49,15 @@
                 <h3>SCHEDULE</h3>
                 <form action="updateSchedule" method="post">
                     <%
-                        while (rs.next()) {
+                        for (Task task : tasks) {
                     %>
                     <div class="time-slot">
-                        <input type="text" name="title" value="<%= rs.getString("title") %>" required>
-                        <input type="time" name="timeSlot" value="<%= rs.getTime("timeSlot").toString().substring(0, 5) %>" required>
-                        <input type="hidden" name="taskId" value="<%= rs.getInt("taskId") %>">
+                        <input type="text" name="title" value="<%= task.getTitle() %>" required>
+                        <input type="time" name="startTime" value="<%= task.getStartTime().toString().substring(0, 5) %>" required>
+                        <input type="time" name="endTime" value="<%= task.getEndTime().toString().substring(0, 5) %>" required>
+                        <input type="hidden" name="taskId" value="<%= task.getTaskId() %>">
                         <button type="submit" class="button">Edit</button>
-                        <a href="deleteTask?taskId=<%= rs.getInt("taskId") %>" class="delete-btn">X</a>
+                        <a href="deleteTask?taskId=<%= task.getTaskId() %>" class="delete-btn">X</a>
                     </div>
                     <%
                         }
@@ -83,13 +75,3 @@
 
 </body>
 </html>
-
-<%
-    } catch (Exception e) {
-        e.printStackTrace();
-    } finally {
-        if (rs != null) try { rs.close(); } catch (SQLException ignore) {}
-        if (stmt != null) try { stmt.close(); } catch (SQLException ignore) {}
-        if (conn != null) try { conn.close(); } catch (SQLException ignore) {}
-    }
-%>

@@ -2,6 +2,7 @@ package org.example.dailyplanner;
 
 import jakarta.persistence.*;
 
+import java.sql.Time;
 import java.time.LocalTime;
 
 @Entity
@@ -13,7 +14,7 @@ public class Task {
     private int taskId;
 
     @ManyToOne
-    @JoinColumn(name = "userId", nullable = false) // Fremdschlüssel zu Users
+    @JoinColumn(name = "userId", nullable = false)
     private User user;
 
     @Column(nullable = false)
@@ -23,14 +24,37 @@ public class Task {
     private String description;
 
     @Column(nullable = false)
-    private LocalTime timeSlot;  // Zeit als String speichern, falls notwendig
+    private LocalTime startTime;
+
+    @Column(nullable = false)
+    private LocalTime endTime;
 
     @Column(nullable = false)
     private boolean completed = false;
 
-    private String filePath;
+    @Lob
+    @Column(columnDefinition = "BLOB")
+    private byte[] fileData;
+
+    public Task(int taskId, User user, String title, String description, LocalTime startTime, LocalTime endTime, boolean completed, byte[] fileData) {
+        this.taskId = taskId;
+        this.user = user;
+        this.title = title;
+        this.description = description;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.completed = completed;
+        this.fileData = fileData;
+    }
+
+    public Task(int taskId, int userId, String title, String description, Time startTime, Time endTime, boolean completed, byte[] fileData) {}
+
+    public Task() {
+
+    }
 
     // Getter und Setter
+
     public int getTaskId() {
         return taskId;
     }
@@ -63,12 +87,20 @@ public class Task {
         this.description = description;
     }
 
-    public LocalTime getTimeSlot() {
-        return timeSlot;
+    public LocalTime getStartTime() {
+        return startTime;
     }
 
-    public void setTimeSlot(LocalTime timeSlot) {
-        this.timeSlot = timeSlot;
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
     }
 
     public boolean isCompleted() {
@@ -79,11 +111,11 @@ public class Task {
         this.completed = completed;
     }
 
-    public String getFilePath() {
-        return filePath;
+    public byte[] getFileData() {
+        return fileData;
     }
 
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
+    public void setFileData(byte[] fileData) {
+        this.fileData = fileData;
     }
 }

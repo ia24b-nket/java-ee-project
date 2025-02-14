@@ -13,9 +13,11 @@ public class TestDatabase {
                 System.out.println("Connection established");
                 conn.close();
             }
+
             else{
                 System.out.println("Connection failed");
             }
+
         } catch (SQLException e) {
             System.out.println("Connection error: "+ e.getMessage());
         }
