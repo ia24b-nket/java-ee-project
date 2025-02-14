@@ -3,9 +3,7 @@
 
 <%
     HttpSession sess = request.getSession(false);
-    int userId = (sess != null && sess.getAttribute("userId") != null) ? (int) sess.getAttribute("userId") : -1;
-
-    if (userId == -1) {
+    if (sess == null || sess.getAttribute("userId") == null) {
         response.sendRedirect("login.jsp");
         return;
     }
@@ -25,7 +23,7 @@
 </div>
 
 <div class="new-task-container">
-    <form action="addTask" method="post" enctype="multipart/form-data">
+    <form action="dashboard.jsp" method="post" enctype="multipart/form-data">
         <label for="title">Task Name:</label>
         <input type="text" name="title" id="title" placeholder="Enter task name..." required>
 

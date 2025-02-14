@@ -22,7 +22,6 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks;
 
-    // Getter und Setter
     public int getUserId() {
         return userId;
     }

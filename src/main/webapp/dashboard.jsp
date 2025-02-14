@@ -1,29 +1,22 @@
 <%@ page import="jakarta.servlet.http.HttpSession" %>
-<%@ page import="java.sql.*" %>
-<%@ page import="org.example.dailyplanner.DBConnection" %>
+<%@ page import="java.util.List" %>
+<%@ page import="org.example.dailyplanner.TaskDAO" %>
+<%@ page import="org.example.dailyplanner.Task" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
 
 <%
-    // Check if user is logged in
-    HttpSession sess = request.getSession(false);
-    String username = (sess != null) ? (String) sess.getAttribute("username") : null;
-    int userId = (sess != null && sess.getAttribute("userId") != null) ? (int) sess.getAttribute("userId") : -1;
-
-    if (username == null || userId == -1) {
+    // Session check
+    HttpSession sessionUser = request.getSession(false);
+    if (sessionUser == null || sessionUser.getAttribute("username") == null) {
         response.sendRedirect("login.jsp");
         return;
     }
 
-    Connection conn = null;
-    PreparedStatement stmt = null;
-    ResultSet rs = null;
+    String username = (String) sessionUser.getAttribute("username");
 
-    try {
-        conn = new DBConnection().getConnection();
-        String sql = "SELECT taskId, title, timeSlot FROM Tasks WHERE userId = ? ORDER BY timeSlot";
-        stmt = conn.prepareStatement(sql);
-        stmt.setInt(1, userId);
-        rs = stmt.executeQuery();
+    // Retrieve tasks for logged-in user
+    TaskDAO taskDAO = new TaskDAO(DatabaseConnection.getConnection()); // Fix: Connection übergeben
+    List<Task> tasks = taskDAO.getTasksByUsername(username); // Fix: ResultSet durch List<Task> ersetzt
 %>
 
 <!DOCTYPE html>
@@ -37,44 +30,48 @@
 </head>
 <body>
 
+<!-- Header -->
 <div class="header">
-    <h2>FEBRUARY 7 2025</h2>
+    <h2>USER DASHBOARD</h2>
 </div>
 
+<!-- Dashboard -->
 <div class="dashboard">
-    <div class="schedule">
-        <h3>SCHEDULE</h3>
-        <form action="updateSchedule" method="post">
-            <%
-                while (rs.next()) {
-            %>
-            <div class="time-slot">
-                <input type="text" name="title" value="<%= rs.getString("title") %>" required>
-                <input type="time" name="timeSlot" value="<%= rs.getTime("timeSlot").toString().substring(0,5) %>" required>
-                <input type="hidden" name="taskId" value="<%= rs.getInt("taskId") %>">
-                <button type="submit">Edit</button>
-                <a href="deleteTask?taskId=<%= rs.getInt("taskId") %>" class="delete-btn">X</a>
-            </div>
-            <%
-                }
-            %>
-        </form>
-    </div>
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <h3>FEBRUARY 7 2025</h3>
+            <a href="logout.jsp" class="button">Logout</a>
+        </div>
 
-    <div class="add-task">
-        <a href="newTask.jsp" class="button">+ Add New Task</a>
+        <div class="row">
+            <!-- Schedule Section -->
+            <div class="schedule">
+                <h3>SCHEDULE</h3>
+                <form action="updateSchedule" method="post">
+                    <%
+                        for (Task task : tasks) {
+                    %>
+                    <div class="time-slot">
+                        <input type="text" name="title" value="<%= task.getTitle() %>" required>
+                        <input type="time" name="startTime" value="<%= task.getStartTime().toString().substring(0, 5) %>" required>
+                        <input type="time" name="endTime" value="<%= task.getEndTime().toString().substring(0, 5) %>" required>
+                        <input type="hidden" name="taskId" value="<%= task.getTaskId() %>">
+                        <button type="submit" class="button">Edit</button>
+                        <a href="deleteTask?taskId=<%= task.getTaskId() %>" class="delete-btn">X</a>
+                    </div>
+                    <%
+                        }
+                    %>
+                </form>
+            </div>
+
+            <!-- Add Task Section -->
+            <div class="add-task">
+                <a href="newTask.jsp" class="button">+ Add New Task</a>
+            </div>
+        </div>
     </div>
 </div>
 
 </body>
 </html>
-
-<%
-    } catch (Exception e) {
-        e.printStackTrace();
-    } finally {
-        if (rs != null) rs.close();
-        if (stmt != null) stmt.close();
-        if (conn != null) conn.close();
-    }
-%>
