@@ -46,7 +46,7 @@
 
 <!-- Dashboard -->
 <div class="dashboard">
-    <div class="container mt-4">
+    <div class="container">
         <div class="d-flex justify-content-between align-items-center">
             <h3>FEBRUARY 7 2025</h3>
             <a href="logout.jsp" class="button">Logout</a>
