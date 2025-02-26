@@ -1,8 +1,6 @@
 package org.example.dailyplanner;
 
 import jakarta.persistence.*;
-
-import java.sql.Time;
 import java.time.LocalTime;
 
 @Entity
@@ -36,6 +34,11 @@ public class Task {
     @Column(columnDefinition = "BLOB")
     private byte[] fileData;
 
+    // ✅ No-arg constructor (required by JPA)
+    public Task() {
+    }
+
+    // ✅ Full-arg constructor
     public Task(int taskId, User user, String title, String description, LocalTime startTime, LocalTime endTime, boolean completed, byte[] fileData) {
         this.taskId = taskId;
         this.user = user;
@@ -47,14 +50,30 @@ public class Task {
         this.fileData = fileData;
     }
 
-    public Task(int taskId, int userId, String title, String description, Time startTime, Time endTime, boolean completed, byte[] fileData) {}
+    // ✅ Constructor for tasks without file data
+    public Task(int taskId, User user, String title, String description, LocalTime startTime, LocalTime endTime, boolean completed) {
+        this.taskId = taskId;
+        this.user = user;
+        this.title = title;
+        this.description = description;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.completed = completed;
+    }
 
-    public Task() {
-
+    // ✅ Constructor for TaskDAO (when using userId)
+    public Task(int taskId, int userId, String title, String description, LocalTime startTime, LocalTime endTime, boolean completed) {
+        this.taskId = taskId;
+        this.user = new User();
+        this.user.setUserId(userId);
+        this.title = title;
+        this.description = description;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.completed = completed;
     }
 
     // Getter und Setter
-
     public int getTaskId() {
         return taskId;
     }

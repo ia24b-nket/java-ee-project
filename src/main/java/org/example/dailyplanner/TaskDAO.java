@@ -1,6 +1,7 @@
 package org.example.dailyplanner;
 
 import java.sql.*;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +12,7 @@ public class TaskDAO {
         this.conn = conn;
     }
 
+    // Get all tasks from the database
     public List<Task> getAllTasks() throws SQLException {
         List<Task> tasks = new ArrayList<>();
         String sql = "SELECT * FROM Tasks";
@@ -24,49 +26,172 @@ public class TaskDAO {
                         rs.getInt("userId"),
                         rs.getString("title"),
                         rs.getString("description"),
-                        rs.getTime("startTime"),
-                        rs.getTime("endTime"),
-                        rs.getBoolean("completed"),
-                        rs.getBytes("fileData")
+                        rs.getTime("startTime").toLocalTime(),
+                        rs.getTime("endTime").toLocalTime(),
+                        rs.getBoolean("completed")
                 ));
             }
         }
-
         return tasks;
     }
 
-    public boolean insertTask(Task task) throws SQLException {
-        String sql = "INSERT INTO Tasks (title, description, startTime, endTime, completed, fileData) VALUES (?, ?, ?, ?, ?, ?)";
-        PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-        stmt.setString(1, task.getTitle());
-        stmt.setString(2, task.getDescription());
-        stmt.setTime(3, Time.valueOf(task.getStartTime()));
-        stmt.setTime(4, Time.valueOf(task.getEndTime()));
-        stmt.setBoolean(5, task.isCompleted());
-        stmt.setBytes(6, task.getFileData());
+    // Get task by ID
+    public Task getTaskById(int taskId) throws SQLException {
+        String sql = "SELECT * FROM Tasks WHERE taskId = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, taskId);
+            ResultSet rs = stmt.executeQuery();
 
-        return stmt.executeUpdate() > 0;
+            if (rs.next()) {
+                return new Task(
+                        rs.getInt("taskId"),
+                        rs.getInt("userId"),
+                        rs.getString("title"),
+                        rs.getString("description"),
+                        rs.getTime("startTime").toLocalTime(),
+                        rs.getTime("endTime").toLocalTime(),
+                        rs.getBoolean("completed")
+                );
+            }
+        }
+        return null;
     }
-    public boolean updateTask(Task task) throws SQLException {
-        String sql = "UPDATE Tasks SET title = ?, description = ?, startTime = ?, endTime = ?, completed = ?, fileData = ? WHERE taskId = ?";
+
+    // Get the userId by username
+    public int getUserIdByUsername(String username) throws SQLException {
+        String sql = "SELECT userId FROM Users WHERE username = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("userId");
+            }
+        }
+        throw new SQLException("User not found with username: " + username);
+    }
+
+
+    // Get tasks by User ID
+    public List<Task> getTasksByUserId(int userId) throws SQLException {
+        List<Task> tasks = new ArrayList<>();
+        String sql = "SELECT * FROM Tasks WHERE userId = ?";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, task.getTitle());
-            stmt.setString(2, task.getDescription());
-            stmt.setTime(3, Time.valueOf(task.getStartTime())); // Fix: LocalTime zu SQL Time
-            stmt.setTime(4, Time.valueOf(task.getEndTime()));   // Fix: LocalTime zu SQL Time
-            stmt.setBoolean(5, task.isCompleted());
-            stmt.setBytes(6, task.getFileData());
-            stmt.setInt(7, task.getTaskId()); // Fix: WHERE-Bedingung korrekt setzen
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                tasks.add(new Task(
+                        rs.getInt("taskId"),
+                        rs.getInt("userId"),
+                        rs.getString("title"),
+                        rs.getString("description"),
+                        rs.getTime("startTime").toLocalTime(),
+                        rs.getTime("endTime").toLocalTime(),
+                        rs.getBoolean("completed")
+                ));
+            }
+        }
+        return tasks;
+    }
+
+    // Get tasks by Username
+    public List<Task> getTasksByUsername(String username) throws SQLException {
+        List<Task> tasks = new ArrayList<>();
+        String sql = "SELECT t.* FROM Tasks t JOIN Users u ON t.userId = u.userId WHERE u.username = ?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                tasks.add(new Task(
+                        rs.getInt("taskId"),
+                        rs.getInt("userId"),
+                        rs.getString("title"),
+                        rs.getString("description"),
+                        rs.getTime("startTime").toLocalTime(),
+                        rs.getTime("endTime").toLocalTime(),
+                        rs.getBoolean("completed")
+                ));
+            }
+        }
+        return tasks;
+    }
+
+    public boolean insertTask(Task task, String username) throws SQLException {
+        // Get userId using the username
+        String getUserIdSql = "SELECT userId FROM Users WHERE username = ?";
+        int userId = -1;
+
+        try (PreparedStatement getUserStmt = conn.prepareStatement(getUserIdSql)) {
+            getUserStmt.setString(1, username);
+            ResultSet rs = getUserStmt.executeQuery();
+            if (rs.next()) {
+                userId = rs.getInt("userId");
+            } else {
+                return false;
+            }
+        }
+
+        // Insert new task with the userId
+        String insertTaskSql = "INSERT INTO Tasks (userId, title, description, startTime, endTime, completed, fileData) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        try (PreparedStatement stmt = conn.prepareStatement(insertTaskSql)) {
+            stmt.setInt(1, userId);
+            stmt.setString(2, task.getTitle());
+            stmt.setString(3, task.getDescription());
+            stmt.setTime(4, java.sql.Time.valueOf(task.getStartTime()));
+            stmt.setTime(5, java.sql.Time.valueOf(task.getEndTime()));
+            stmt.setBoolean(6, task.isCompleted());
+            stmt.setBytes(7, task.getFileData());
 
             return stmt.executeUpdate() > 0;
         }
     }
 
+    // Update an existing task
+    public boolean updateTask(Task task) throws SQLException {
+        String sql = "UPDATE Tasks SET title = ?, description = ?, startTime = ?, endTime = ?, completed = ? WHERE taskId = ?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, task.getTitle());
+            stmt.setString(2, task.getDescription());
+            stmt.setTime(3, Time.valueOf(task.getStartTime()));
+            stmt.setTime(4, Time.valueOf(task.getEndTime()));
+            stmt.setBoolean(5, task.isCompleted());
+            stmt.setInt(6, task.getTaskId());
+
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    // Delete task by ID
     public boolean deleteTask(int taskId) throws SQLException {
-        String sql = "DELETE FROM Task WHERE taskId = ?";
+        String sql = "DELETE FROM Tasks WHERE taskId = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, taskId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    // Mark task as completed
+    public boolean markTaskAsCompleted(int taskId) throws SQLException {
+        String sql = "UPDATE Tasks SET completed = ? WHERE taskId = ?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setBoolean(1, true); // Mark task as completed
+            stmt.setInt(2, taskId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    // Delete all tasks by User ID
+    public boolean deleteAllTasksByUser(int userId) throws SQLException {
+        String sql = "DELETE FROM Tasks WHERE userId = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
             return stmt.executeUpdate() > 0;
         }
     }

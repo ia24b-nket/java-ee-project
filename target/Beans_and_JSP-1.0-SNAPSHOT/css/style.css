@@ -3,17 +3,29 @@ body {
     font-family: Arial, sans-serif;
     background-color: #f8f8f8;
     text-align: center;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 /* Header */
-.header h2 {
+.header {
     background-color: #C065E9;
     color: white;
     padding: 20px;
     font-size: 24px;
     font-weight: bold;
     text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
+
 
 /* --------------------- DASHBOARD PAGE --------------------- */
 
@@ -22,44 +34,55 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 30px;
+    justify-content: flex-start;
+    width: 100%;
+    max-width: 800px;
+    padding: 20px;
+    box-sizing: border-box;
+    margin-top: 20px;
 }
 
 /* Schedule Box */
 .schedule {
-    width: 400px; /* Fixierte Breite, damit es nicht zu groß wird */
+    width: 100%;
     background: white;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     text-align: center;
+    margin: 20px 0;
+    box-sizing: border-box;
 }
 
 /* Schedule Titel */
 .schedule h3 {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: bold;
+    color: #6A1B9A;
 }
 
 /* Task Box */
 .time-slot {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    padding: 12px;
-    margin: 10px 0;
+    padding: 15px;
+    margin: 15px 0;
     background: #F3CCFF;
     border-radius: 12px;
     font-size: 16px;
     color: black;
     width: 90%;
-    margin-left: auto;
-    margin-right: auto;
+    box-sizing: border-box;
+    text-align: left;
+    transition: background 0.3s ease;
 }
 
 /* Task Hover Effekt */
 .time-slot:hover {
     background: #e9c0f5;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Eingabefelder für Tasks */
@@ -68,7 +91,8 @@ body {
     background: transparent;
     font-size: 16px;
     padding: 5px;
-    width: 70%;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* Uhr-Icon */
@@ -77,11 +101,13 @@ body {
     background-color: transparent;
     font-size: 18px;
     cursor: pointer;
+    margin-left: 10px;
 }
 
 /* Add Task Button */
 .add-task {
     margin-top: 20px;
+    text-align: center;
 }
 
 .button {
@@ -95,11 +121,11 @@ body {
     border: none;
     cursor: pointer;
     font-weight: bold;
+    transition: background 0.3s ease;
 }
 
 .button:hover {
     background: #A04CC6;
-    : white;
 }
 
 /* Logout Button */
@@ -114,53 +140,43 @@ body {
     text-decoration: none;
     font-size: 14px;
     font-weight: bold;
+    transition: background 0.3s ease;
 }
 
 .logout:hover {
     background: #A04CC6;
 }
 
-
 /*--------------------- NEW TASK PAGE ---------------------*/
 
 /* Container für neue Aufgabe */
 .new-task-container {
     text-align: center;
-    width: 50%;
-    margin: 30px auto; /* centers container horizontally and adds 15px top & bottom margin */
+    width: 80%;
+    max-width: 500px;
+    margin: 30px auto;
     padding: 20px;
     background: #F3CCFF;
     border-radius: 30px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Hide the buttons by default */
-.time-slot button {
-    display: none;
-}
-
-/* Show the buttons when .time-slot is focused */
-.time-slot:focus-within button {
-    display: inline-block; /* or inline-flex, block, etc. depending on your design */
-}
-
 /* Eingabefelder */
-.new-task-container input {
-    width: fit-content;
+.new-task-container input,
+.new-task-container textarea {
+    width: 100%;
     padding: 10px;
     margin: 10px 0;
     border-radius: 5px;
     border: 1px solid #ddd;
     font-size: 16px;
+    box-sizing: border-box;
 }
 
-.new-task-container textarea#notes {
-    width: 80%;
-    max-width: 500px;
-    background-color: #ffffff;
-    font-family: Arial, sans-serif;
-    border: none;
-    border-radius: 8px;
+/* Textarea ID */
+.new-task-container textarea#description {
+    height: 100px;
+    resize: vertical;
 }
 
 /* Datei Upload */
@@ -172,8 +188,9 @@ body {
 
 /* Speichern-Button */
 .new-task-container button {
-    width: 30%;
-    padding: 15px;
+    width: 100%;
+    margin: 20px;
+    padding: 30px;
     background-color: #C065E9;
     color: white;
     font-size: 18px;
@@ -181,6 +198,7 @@ body {
     border: none;
     border-radius: 30px;
     cursor: pointer;
+    transition: background 0.3s ease;
 }
 
 .new-task-container button:hover {
@@ -192,6 +210,7 @@ body {
 /* Login Container */
 .login-container {
     width: 30%;
+    min-width: 300px;
     margin: auto;
     padding: 40px;
     background: white;
@@ -228,6 +247,7 @@ body {
     border: none;
     border-radius: 30px;
     cursor: pointer;
+    transition: background 0.3s ease;
 }
 
 .login-container button:hover {
