@@ -4,6 +4,9 @@
 <%@ page import="org.example.dailyplanner.TaskDAO" %>
 <%@ page import="org.example.dailyplanner.Task" %>
 <%@ page import="java.sql.Connection" %>
+<%@ page import="java.time.LocalDate" %>
+<%@ page import="java.time.Clock" %>
+<%@ page import="java.time.format.DateTimeFormatter" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
 
 <%
@@ -55,8 +58,7 @@
 </div>
 
 <div class="dashboard">
-    <h3>FEBRUARY 7 2025</h3>
-
+    <h3><%= LocalDate.now(Clock.systemDefaultZone()).format(DateTimeFormatter.ofPattern("MMMM d, yyyy")) %></h3>
     <div class="schedule">
         <h3>SCHEDULE</h3>
 
@@ -90,7 +92,12 @@
             <%
                 }
             %>
+
+            <!-- Edit Button -->
+            <a href="editTask.jsp?taskId=<%= task.getTaskId() %>" class="button">✏️</a>
+
         </div>
+
         <%
             }
         } else {
