@@ -54,7 +54,7 @@
 
 <div class="header">
     <h2>USER DASHBOARD</h2>
-    <a href="logout.jsp" class="logout">Logout</a>
+    <a href="login.jsp" class="logout">Logout</a>
 </div>
 
 <div class="dashboard">
@@ -96,6 +96,11 @@
             <!-- Edit Button -->
             <a href="editTask.jsp?taskId=<%= task.getTaskId() %>" class="button">✏️</a>
 
+            <!-- Delete Button -->
+            <form action="DeleteTaskServlet" method="post" style="display:inline;">
+                <input type="hidden" name="taskId" value="<%= task.getTaskId() %>">
+                <button type="submit" class="delete-button">🗑️</button>
+            </form>
         </div>
 
         <%

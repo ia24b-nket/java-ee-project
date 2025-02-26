@@ -57,7 +57,7 @@ public class TaskDAO {
         return null;
     }
 
-    // Get the userId by username
+    // Get the User ID by username
     public int getUserIdByUsername(String username) throws SQLException {
         String sql = "SELECT userId FROM Users WHERE username = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
