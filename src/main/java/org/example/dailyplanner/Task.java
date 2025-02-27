@@ -34,11 +34,9 @@ public class Task {
     @Column(columnDefinition = "BLOB")
     private byte[] fileData;
 
-    // ✅ No-arg constructor (required by JPA)
     public Task() {
     }
 
-    // ✅ Full-arg constructor
     public Task(int taskId, User user, String title, String description, LocalTime startTime, LocalTime endTime, boolean completed, byte[] fileData) {
         this.taskId = taskId;
         this.user = user;
@@ -50,7 +48,6 @@ public class Task {
         this.fileData = fileData;
     }
 
-    // ✅ Constructor for tasks without file data
     public Task(int taskId, User user, String title, String description, LocalTime startTime, LocalTime endTime, boolean completed) {
         this.taskId = taskId;
         this.user = user;
@@ -61,7 +58,6 @@ public class Task {
         this.completed = completed;
     }
 
-    // ✅ Constructor for TaskDAO (when using userId)
     public Task(int taskId, int userId, String title, String description, LocalTime startTime, LocalTime endTime, boolean completed) {
         this.taskId = taskId;
         this.user = new User();
@@ -73,7 +69,6 @@ public class Task {
         this.completed = completed;
     }
 
-    // Getter und Setter
     public int getTaskId() {
         return taskId;
     }

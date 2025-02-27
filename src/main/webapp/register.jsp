@@ -16,7 +16,7 @@
 
 <!-- Registration Form -->
 <div class="register-container">
-    <form action="register" method="post">
+    <form action="RegisterServlet" method="post">
         <input type="text" name="username" placeholder="Username" required minlength="3" title="At least 3 characters required">
         <input type="email" name="email" placeholder="Email" required>
         <input type="password" name="password" placeholder="Password" required minlength="6" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}" title="At least 6 characters, including uppercase, lowercase and a number">
