@@ -14,7 +14,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Daily Planner - Add New Task</title>
-    <link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/css/style.css?v=2">
+    <link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/css/style.css?v=4">
 </head>
 <body>
 

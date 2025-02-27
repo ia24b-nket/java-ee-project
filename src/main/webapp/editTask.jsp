@@ -33,7 +33,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Edit Task</title>
-  <link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/css/style.css?v=2">
+  <link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/css/style.css?v=4">
 </head>
 <body>
 <div class="header">

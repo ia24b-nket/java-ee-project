@@ -48,7 +48,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Daily Planner - Dashboard</title>
-    <link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/css/style.css?v=2">
+    <link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/css/style.css?v=4">
 </head>
 <body>
 
@@ -94,12 +94,16 @@
             %>
 
             <!-- Edit Button -->
-            <a href="editTask.jsp?taskId=<%= task.getTaskId() %>" class="button">✏️</a>
+            <div class="button-container">
+                <a href="editTask.jsp?taskId=<%= task.getTaskId() %>" class="edit-button">✏️</a>
+            </div>
 
             <!-- Delete Button -->
-            <form action="DeleteTaskServlet" method="post" style="display:inline;">
+            <form action="DeleteTaskServlet" method="post">
                 <input type="hidden" name="taskId" value="<%= task.getTaskId() %>">
-                <button type="submit" class="delete-button">🗑️</button>
+                <div class="button-container">
+                    <button type="submit" class="delete-button">🗑️</button>
+                </div>
             </form>
         </div>
 
