@@ -1,64 +1,127 @@
 <%@ page import="jakarta.servlet.http.HttpSession" %>
-<%@ page import="java.sql.*" %>
+<%@ page import="java.util.List" %>
 <%@ page import="org.example.dailyplanner.DBConnection" %>
+<%@ page import="org.example.dailyplanner.TaskDAO" %>
+<%@ page import="org.example.dailyplanner.Task" %>
+<%@ page import="java.sql.Connection" %>
+<%@ page import="java.time.LocalDate" %>
+<%@ page import="java.time.Clock" %>
+<%@ page import="java.time.format.DateTimeFormatter" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
 
 <%
-    // Check if user is logged in
-    HttpSession sess = request.getSession(false);
-    String username = (sess != null) ? (String) sess.getAttribute("username") : null;
-    int userId = (sess != null && sess.getAttribute("userId") != null) ? (int) sess.getAttribute("userId") : -1;
-
-    if (username == null || userId == -1) {
+    // Check user session
+    HttpSession sessionUser = request.getSession(false);
+    if (sessionUser == null || sessionUser.getAttribute("userId") == null) {
         response.sendRedirect("login.jsp");
         return;
     }
 
+    Integer userId = (Integer) sessionUser.getAttribute("userId");
+
+    // Initialize DB connection and tasks list
     Connection conn = null;
-    PreparedStatement stmt = null;
-    ResultSet rs = null;
+    List<Task> tasks = null;
+    String errorMessage = null;
 
     try {
-        conn = new DBConnection().getConnection();
-        String sql = "SELECT taskId, title, timeSlot FROM Tasks WHERE userId = ? ORDER BY timeSlot";
-        stmt = conn.prepareStatement(sql);
-        stmt.setInt(1, userId);
-        rs = stmt.executeQuery();
+        DBConnection dbConn = new DBConnection();
+        conn = dbConn.getConnection();
+        TaskDAO taskDAO = new TaskDAO(conn);
+        tasks = taskDAO.getTasksByUserId(userId);
+    } catch (Exception e) {
+        e.printStackTrace();
+        errorMessage = "Failed to load tasks. Please try again later.";
+    } finally {
+        if (conn != null) {
+            try {
+                conn.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 %>
 
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/css/style.css?v=1">
+    <meta charset="UTF-8">
     <title>Daily Planner - Dashboard</title>
+    <link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/css/style.css?v=4">
 </head>
 <body>
 
 <div class="header">
-    <h2>FEBRUARY 7 2025</h2>
+    <h2>USER DASHBOARD</h2>
+    <%
+        // Get the username from session
+        String username = (String) sessionUser.getAttribute("username");
+    %>
+    <h3 class="greeting">Hey <%= username %>! Ready to conquer today’s tasks?</h3>
+    <a href="login.jsp" class="logout">Logout</a>
 </div>
 
+
 <div class="dashboard">
+    <h3><%= LocalDate.now(Clock.systemDefaultZone()).format(DateTimeFormatter.ofPattern("MMMM d, yyyy")) %></h3>
     <div class="schedule">
         <h3>SCHEDULE</h3>
-        <form action="updateSchedule" method="post">
+
+        <!-- Display Error Message if Failed to Load Tasks -->
+        <%
+            if (errorMessage != null) {
+        %>
+        <div class="error-message">
+            <p><%= errorMessage %></p>
+        </div>
+        <%
+            }
+        %>
+
+        <!-- Display Tasks -->
+        <%
+            if (tasks != null && !tasks.isEmpty()) {
+                for (Task task : tasks) {
+        %>
+        <div class="time-slot <%= task.isCompleted() ? "completed" : "" %>">
+            <h4><%= task.getTitle() %></h4>
+            <p>Time: <%= task.getStartTime() %> - <%= task.getEndTime() %></p>
+            <p>Description: <%= task.getDescription() %></p>
+            <p>Completed: <%= task.isCompleted() ? "Yes" : "No" %></p>
+
+            <!-- Display File Attachment -->
             <%
-                while (rs.next()) {
+                if (task.getFileData() != null && task.getFileData().length > 0) {
             %>
-            <div class="time-slot">
-                <input type="text" name="title" value="<%= rs.getString("title") %>" required>
-                <input type="time" name="timeSlot" value="<%= rs.getTime("timeSlot").toString().substring(0,5) %>" required>
-                <input type="hidden" name="taskId" value="<%= rs.getInt("taskId") %>">
-                <button type="submit">Edit</button>
-                <a href="deleteTask?taskId=<%= rs.getInt("taskId") %>" class="delete-btn">X</a>
-            </div>
+            <a href="DownloadFileServlet?taskId=<%= task.getTaskId() %>" class="button">Download Attached File</a>
             <%
                 }
             %>
-        </form>
+
+            <!-- Edit Button -->
+            <div class="button-container">
+                <a href="editTask.jsp?taskId=<%= task.getTaskId() %>" class="edit-button">✏️</a>
+            </div>
+
+            <!-- Delete Button -->
+            <form action="<%= request.getContextPath() %>/DeleteTaskServlet" method="post">
+                <input type="hidden" name="taskId" value="<%= task.getTaskId() %>">
+                <div class="button-container">
+                    <button type="submit" class="delete-button">🗑️</button>
+                </div>
+            </form>
+        </div>
+
+        <%
+            }
+        } else {
+        %>
+        <p>No tasks found.</p>
+        <%
+            }
+        %>
+
     </div>
 
     <div class="add-task">
@@ -68,13 +131,3 @@
 
 </body>
 </html>
-
-<%
-    } catch (Exception e) {
-        e.printStackTrace();
-    } finally {
-        if (rs != null) rs.close();
-        if (stmt != null) stmt.close();
-        if (conn != null) conn.close();
-    }
-%>

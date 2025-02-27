@@ -25,5 +25,9 @@ replay_pid*
 
 
 .idea/
-.target/
-,zipinclude
+target/
+.zipinclude
+
+# Ignore database properties file
+src/main/resources/db.properties
+

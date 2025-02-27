@@ -7,12 +7,13 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-@WebServlet("/login")
-public class LoginServlet extends HttpServlet {
+@WebServlet("/register")
+public class RegisterServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+        String username = request.getParameter("username");
         String email = request.getParameter("email");
         String password = request.getParameter("password");
 
@@ -26,24 +27,27 @@ public class LoginServlet extends HttpServlet {
             // Initialize UserDAO
             UserDAO userDAO = new UserDAO(conn);
 
-            // Get stored user by email
-            User user = userDAO.getUserByEmail(email);
+            // Check if email is already taken
+            if (userDAO.isEmailTaken(email)) {
+                response.sendRedirect("register.jsp?error=Email already in use");
+                return;
+            }
 
-            // Check if user exists and passwords match
-            if (user != null && PasswordUtil.hashPassword(password).equals(user.getPassword())) {
-                // Successful login
-                HttpSession session = request.getSession();
-                session.setAttribute("username", user.getUsername());
-                session.setAttribute("userId", Integer.valueOf(user.getUserId()));
-                response.sendRedirect("dashboard.jsp");
+            // Hash the password
+            String hashedPassword = PasswordUtil.hashPassword(password);
+
+            User newUser = new User(username, email, hashedPassword);
+
+            // Save user in database
+            if (userDAO.insertUser(newUser)) {
+                response.sendRedirect("register.jsp?success=registered");
             } else {
-                // Invalid credentials
-                response.sendRedirect("login.jsp?error=Invalid email or password");
+                response.sendRedirect("register.jsp?error=Registration failed");
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
-            response.sendRedirect("login.jsp?error=Database error");
+            response.sendRedirect("register.jsp?error=Database error");
         } finally {
             if (conn != null) {
                 try {

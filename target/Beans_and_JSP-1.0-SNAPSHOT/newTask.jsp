@@ -3,20 +3,18 @@
 
 <%
     HttpSession sess = request.getSession(false);
-    int userId = (sess != null && sess.getAttribute("userId") != null) ? (int) sess.getAttribute("userId") : -1;
-
-    if (userId == -1) {
+    if (sess == null || sess.getAttribute("userId") == null) {
         response.sendRedirect("login.jsp");
         return;
     }
 %>
 
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Daily Planner - Add New Task</title>
-    <link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/css/style.css?v=1">
+    <link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/css/style.css?v=4">
 </head>
 <body>
 
@@ -25,23 +23,29 @@
 </div>
 
 <div class="new-task-container">
-    <form action="addTask" method="post" enctype="multipart/form-data">
+    <form action="TaskServlet" method="post" enctype="multipart/form-data">
         <label for="title">Task Name:</label>
         <input type="text" name="title" id="title" placeholder="Enter task name..." required>
 
-        <label for="timeSlot">Time:</label>
-        <input type="time" name="timeSlot" id="timeSlot" required>
+        <label for="startTime">Start Time:</label>
+        <input type="time" name="startTime" id="startTime" required>
 
-        <label for="notes">Notes:</label>
-        <textarea name="notes" id="notes" rows="5" cols="30" placeholder="Enter your notes here... (optional)"></textarea>
+        <label for="endTime">End Time:</label>
+        <input type="time" name="endTime" id="endTime" required>
+
+        <label for="description">Notes:</label>
+        <textarea name="description" id="description" rows="5" cols="30" placeholder="Enter your notes here... (optional)"></textarea>
 
         <label for="file">Attach File... (Optional):</label>
         <input type="file" name="file" id="file">
 
+        <label for="completed">Completed:</label>
+        <input type="checkbox" name="completed" id="completed" value="true">
+
         <button type="submit">Save Task</button>
     </form>
 
-    <a href="dashboard.jsp" class="button">Back to Dashboard</a>
+    <br><a href="dashboard.jsp" class="button">Back to Dashboard</a>
 </div>
 
 </body>

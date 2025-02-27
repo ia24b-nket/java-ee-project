@@ -1,91 +1,197 @@
 /* Allgemeine Stile */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
 body {
     font-family: Arial, sans-serif;
     background-color: #f8f8f8;
     text-align: center;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 0;
 }
 
 /* Header */
-.header h2{
+.header {
     background-color: #C065E9;
     color: white;
     padding: 20px;
     font-size: 24px;
     font-weight: bold;
     text-align: center;
-    height: auto;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-/*--------------------- DASHBOARD PAGE ---------------------*/
+/* --------------------- DASHBOARD PAGE --------------------- */
 
 /* Dashboard Layout */
 .dashboard {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 20px;
-}
-
-/* Schedule Section */
-.schedule {
-    width: 50%;
+    justify-content: flex-start;
+    width: 100%;
+    max-width: 800px;
     padding: 20px;
+    box-sizing: border-box;
+    margin: 0 auto;
+}
+
+/* Schedule Box */
+.schedule {
+    width: 100%;
+    max-width: 600px;
     background: white;
+    padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.time-slot {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    margin: 20px auto;
+    box-sizing: border-box;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
-    padding: 10px;
-    margin: 5px 0;
-    background: #F3CCFF;
-    border-radius: 8px;
 }
 
+/* Schedule Titel */
+.schedule h3 {
+    font-size: 22px;
+    font-weight: bold;
+    color: #6A1B9A;
+}
+
+/* Task Box */
+.time-slot {
+    width: 100%;
+    max-width: 500px;
+    background: #F3CCFF;
+    border-radius: 12px;
+    font-size: 16px;
+    color: black;
+    padding: 15px;
+    margin: 15px auto;
+    box-sizing: border-box;
+    text-align: left;
+    transition: background 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Task Hover Effekt */
 .time-slot:hover {
     background: #e9c0f5;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.time-slot input {
-    border: none;
-    background: transparent;
-    font-size: 16px;
-    padding: 5px;
+/* Button Container */
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
 }
 
-.time-slot button{
-    border: none;
-    background-color: transparent;
-}
-
-.delete-btn {
+/* Edit Button */
+.time-slot .edit-button {
     background: none;
+    color: white;
     border: none;
-    color: rgb(246, 24, 28);
-    font-size: 18px;
+    padding: 10px;
+    border-radius: 50%;
     cursor: pointer;
+    font-size: 20px;
+    transition: transform 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+}
+
+.time-slot .edit-button:hover {
+    background-color: #A04CC6;
+    transform: scale(1.1);
+}
+
+/* Delete Button */
+.time-slot .delete-button {
+    background: none;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+    transition: transform 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.time-slot .delete-button:hover {
+    background-color: #FF5C5C;
+    transform: scale(1.1);
 }
 
 /* Add Task Button */
 .add-task {
     margin-top: 20px;
+    text-align: center;
 }
 
 .button {
     display: inline-block;
-    padding: 10px 20px;
+    padding: 12px 25px;
     background: #C065E9;
     color: white;
+    font-size: 16px;
     text-decoration: none;
-    border-radius: 5px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s ease;
 }
 
 .button:hover {
     background: #A04CC6;
-    color: white;
+}
+/* Task completion */
+.completed {
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
+}
+
+
+/* Logout Button */
+.logout {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: white;
+    padding: 8px 15px;
+    border-radius: 8px;
+    color: #C065E9;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background 0.3s ease;
+}
+
+.logout:hover {
+    background: lightgray;
 }
 
 /*--------------------- NEW TASK PAGE ---------------------*/
@@ -93,44 +199,31 @@ body {
 /* Container für neue Aufgabe */
 .new-task-container {
     text-align: center;
-    width: 50%;
-    margin: 30px auto; /* centers container horizontally and adds 15px top & bottom margin */
+    width: 80%;
+    max-width: 500px;
+    margin: 30px auto;
     padding: 20px;
     background: #F3CCFF;
     border-radius: 30px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Hide the buttons by default */
-.time-slot button {
-    display: none;
-}
-
-/* Show the buttons when .time-slot is focused */
-.time-slot:focus-within button {
-    display: inline-block; /* or inline-flex, block, etc. depending on your design */
-}
-
-
-
 /* Eingabefelder */
-.new-task-container input {
-    width: fit-content;
+.new-task-container input,
+.new-task-container textarea {
+    width: 100%;
     padding: 10px;
     margin: 10px 0;
     border-radius: 5px;
     border: 1px solid #ddd;
     font-size: 16px;
+    box-sizing: border-box;
 }
 
-.new-task-container textarea#notes{
-    width: 80%;
-    max-width: 500px;
-    background-color: #ffffff;
-    font-family: Arial, sans-serif;
-    border: none;
-    border-radius: 8px;
-
+/* Textarea ID */
+.new-task-container textarea#description {
+    height: 100px;
+    resize: vertical;
 }
 
 /* Datei Upload */
@@ -142,8 +235,9 @@ body {
 
 /* Speichern-Button */
 .new-task-container button {
-    width: 30%;
-    padding: 15px;
+    width: 100%;
+    margin: 20px auto;
+    padding: 30px;
     background-color: #C065E9;
     color: white;
     font-size: 18px;
@@ -151,6 +245,7 @@ body {
     border: none;
     border-radius: 30px;
     cursor: pointer;
+    transition: background 0.3s ease;
 }
 
 .new-task-container button:hover {
@@ -162,6 +257,7 @@ body {
 /* Login Container */
 .login-container {
     width: 30%;
+    min-width: 300px;
     margin: auto;
     padding: 40px;
     background: white;
@@ -181,6 +277,7 @@ body {
     font-size: 16px;
     text-align: center;
 }
+
 .login-container input:focus {
     outline: none;
     border-color: #A04CC6;
@@ -197,6 +294,7 @@ body {
     border: none;
     border-radius: 30px;
     cursor: pointer;
+    transition: background 0.3s ease;
 }
 
 .login-container button:hover {
@@ -217,4 +315,89 @@ body {
     text-decoration: underline;
 }
 
+/* --------------------- REGISTRATION PAGE --------------------- */
 
+/* Registration Container */
+.register-container {
+    width: 80%;
+    max-width: 400px;
+    margin: 30px auto;
+    padding: 20px 30px;
+    background: white;
+    border-radius: 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.register-container:hover {
+    transform: translateY(-5px);
+}
+
+/* Input Fields */
+.register-container input {
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 30px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    text-align: center;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+.register-container input:focus {
+    outline: none;
+    border-color: #A04CC6;
+    box-shadow: 0 0 8px rgba(192, 101, 233, 0.4);
+}
+
+/* Submit Button */
+.register-container button {
+    width: 100%;
+    padding: 15px;
+    background-color: #C065E9;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.register-container button:hover {
+    background-color: #A04CC6;
+}
+
+/* Success Message Style */
+.success-message {
+    color: green;
+    font-size: 14px;
+    margin-top: 10px;
+    text-align: center;
+    background: #e6ffe6;
+    padding: 10px;
+    border: 1px solid #b3ffb3;
+    border-radius: 5px;
+}
+
+/* Error Message */
+.register-container p[style="color: red;"] {
+    color: #FF4F4F;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+/* Link to Login */
+.register-container p a {
+    color: #A04CC6;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.register-container p a:hover {
+    color: #C065E9;
+}
