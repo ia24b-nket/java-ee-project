@@ -12,7 +12,7 @@ public class UserDAO {
         this.conn = conn;
     }
 
-    // Check if the email already exists
+    // Checks if email already exists
     public boolean isEmailTaken(String email) throws SQLException {
         String sql = "SELECT userId FROM Users WHERE email = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -29,7 +29,31 @@ public class UserDAO {
             stmt.setString(1, user.getUsername());
             stmt.setString(2, user.getEmail());
             stmt.setString(3, user.getPassword());
-            return stmt.executeUpdate() > 0;
+            int rowsAffected = stmt.executeUpdate();
+
+            // Commit the transaction
+            conn.commit();
+
+            return rowsAffected > 0;
         }
     }
+
+    // Get user by email
+    public User getUserByEmail(String email) throws SQLException {
+        String sql = "SELECT * FROM Users WHERE email = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, email);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                User user = new User();
+                user.setUserId(rs.getInt("userId"));
+                user.setUsername(rs.getString("username"));
+                user.setEmail(rs.getString("email"));
+                user.setPassword(rs.getString("password"));
+                return user;
+            }
+        }
+        return null;
+    }
+
 }

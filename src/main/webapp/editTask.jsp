@@ -41,17 +41,19 @@
 </div>
 
 <div class="new-task-container">
-  <form action="EditTaskServlet" method="post">
+
+  <!-- Forum -->
+  <form action="${pageContext.request.contextPath}/EditTaskServlet" method="post">
     <input type="hidden" name="taskId" value="<%= task.getTaskId() %>">
 
     <label for="title">Task Name:</label>
     <input type="text" name="title" id="title" value="<%= task.getTitle() %>" required>
 
     <label for="startTime">Start Time:</label>
-    <input type="time" name="startTime" id="startTime" value="<%= task.getStartTime() %>" required>
+    <input type="time" name="startTime" id="startTime" value="<%= task.getStartTime().toString() %>" required>
 
     <label for="endTime">End Time:</label>
-    <input type="time" name="endTime" id="endTime" value="<%= task.getEndTime() %>" required>
+    <input type="time" name="endTime" id="endTime" value="<%= task.getEndTime().toString() %>" required>
 
     <label for="description">Notes:</label>
     <textarea name="description" id="description" rows="5" cols="30"><%= task.getDescription() %></textarea>
@@ -61,6 +63,7 @@
 
     <button type="submit">Update Task</button>
   </form>
+
   <br><a href="dashboard.jsp" class="button">Back to Dashboard</a>
 </div>
 </body>

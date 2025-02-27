@@ -36,6 +36,11 @@ public class DBConnection {
     }
 
     public Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(url, user, password);
+        Connection connection = DriverManager.getConnection(url, user, password);
+
+        // Enable auto-commit
+        connection.setAutoCommit(false);
+
+        return connection;
     }
 }

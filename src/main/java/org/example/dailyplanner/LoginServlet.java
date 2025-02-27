@@ -5,55 +5,45 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String email = req.getParameter("email");
-        String password = req.getParameter("password");
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        String email = request.getParameter("email");
+        String password = request.getParameter("password");
 
         Connection conn = null;
+
         try {
-            // Get database connection
+            // Establish database connection
             DBConnection dbConn = new DBConnection();
             conn = dbConn.getConnection();
 
-            // Prepare SQL query to check email and password
-            String sql = "SELECT userId, username, password FROM Users WHERE email = ?";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setString(1, email);
+            // Initialize UserDAO
+            UserDAO userDAO = new UserDAO(conn);
 
-            ResultSet rs = stmt.executeQuery();
+            // Get stored user by email
+            User user = userDAO.getUserByEmail(email);
 
-            // Check if user exists and password matches
-            if (rs.next()) {
-                String storedPassword = rs.getString("password");
-                if (storedPassword.equals(password)) { // In production, hash and compare passwords
-                    int userId = rs.getInt("userId");
-                    String username = rs.getString("username");
-
-                    // Create a session and set user attributes
-                    HttpSession session = req.getSession();
-                    session.setAttribute("username", username);
-                    session.setAttribute("userId", userId);
-
-                    // Redirect to dashboard
-                    resp.sendRedirect("dashboard.jsp");
-                    return;
-                }
+            // Check if user exists and passwords match
+            if (user != null && PasswordUtil.hashPassword(password).equals(user.getPassword())) {
+                // Successful login
+                HttpSession session = request.getSession();
+                session.setAttribute("username", user.getUsername());
+                session.setAttribute("userId", Integer.valueOf(user.getUserId()));
+                response.sendRedirect("dashboard.jsp");
+            } else {
+                // Invalid credentials
+                response.sendRedirect("login.jsp?error=Invalid email or password");
             }
-
-            // If authentication fails, redirect to login with error
-            resp.sendRedirect("login.jsp?error=true");
 
         } catch (SQLException e) {
             e.printStackTrace();
-            resp.sendRedirect("error.jsp?message=" + e.getMessage());
+            response.sendRedirect("login.jsp?error=Database error");
         } finally {
             if (conn != null) {
                 try {

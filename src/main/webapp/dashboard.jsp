@@ -12,12 +12,12 @@
 <%
     // Check user session
     HttpSession sessionUser = request.getSession(false);
-    if (sessionUser == null || sessionUser.getAttribute("username") == null) {
+    if (sessionUser == null || sessionUser.getAttribute("userId") == null) {
         response.sendRedirect("login.jsp");
         return;
     }
 
-    String username = (String) sessionUser.getAttribute("username");
+    Integer userId = (Integer) sessionUser.getAttribute("userId");
 
     // Initialize DB connection and tasks list
     Connection conn = null;
@@ -28,7 +28,7 @@
         DBConnection dbConn = new DBConnection();
         conn = dbConn.getConnection();
         TaskDAO taskDAO = new TaskDAO(conn);
-        tasks = taskDAO.getTasksByUsername(username);
+        tasks = taskDAO.getTasksByUserId(userId);
     } catch (Exception e) {
         e.printStackTrace();
         errorMessage = "Failed to load tasks. Please try again later.";
@@ -54,8 +54,14 @@
 
 <div class="header">
     <h2>USER DASHBOARD</h2>
+    <%
+        // Get the username from session
+        String username = (String) sessionUser.getAttribute("username");
+    %>
+    <h3 class="greeting">Hey <%= username %>! Ready to conquer today’s tasks?</h3>
     <a href="login.jsp" class="logout">Logout</a>
 </div>
+
 
 <div class="dashboard">
     <h3><%= LocalDate.now(Clock.systemDefaultZone()).format(DateTimeFormatter.ofPattern("MMMM d, yyyy")) %></h3>
@@ -78,7 +84,7 @@
             if (tasks != null && !tasks.isEmpty()) {
                 for (Task task : tasks) {
         %>
-        <div class="time-slot">
+        <div class="time-slot <%= task.isCompleted() ? "completed" : "" %>">
             <h4><%= task.getTitle() %></h4>
             <p>Time: <%= task.getStartTime() %> - <%= task.getEndTime() %></p>
             <p>Description: <%= task.getDescription() %></p>
@@ -99,7 +105,7 @@
             </div>
 
             <!-- Delete Button -->
-            <form action="DeleteTaskServlet" method="post">
+            <form action="<%= request.getContextPath() %>/DeleteTaskServlet" method="post">
                 <input type="hidden" name="taskId" value="<%= task.getTaskId() %>">
                 <div class="button-container">
                     <button type="submit" class="delete-button">🗑️</button>
@@ -115,6 +121,7 @@
         <%
             }
         %>
+
     </div>
 
     <div class="add-task">

@@ -16,30 +16,56 @@
 
 <!-- Registration Form -->
 <div class="register-container">
-    <form action="RegisterServlet" method="post">
-        <input type="text" name="username" placeholder="Username" required minlength="3" title="At least 3 characters required">
-        <input type="email" name="email" placeholder="Email" required>
-        <input type="password" name="password" placeholder="Password" required minlength="6" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}" title="At least 6 characters, including uppercase, lowercase and a number">
+    <form action="<%= request.getContextPath() %>/register" method="post" novalidate>
+        <!-- Username Field -->
+        <input type="text" name="username" placeholder="Username" required minlength="3"
+               title="At least 3 characters required" pattern="^[a-zA-Z0-9_]{3,}$"
+               aria-label="Username" autocomplete="username">
+
+        <!-- Email Field -->
+        <input type="email" name="email" placeholder="Email" required
+               title="Please enter a valid email address" aria-label="Email"
+               autocomplete="email">
+
+        <!-- Password Field -->
+        <input type="password" name="password" placeholder="Password" required minlength="6"
+               pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}"
+               title="At least 6 characters, including uppercase, lowercase and a number"
+               aria-label="Password" autocomplete="new-password">
+
+        <!-- Register Button -->
         <button type="submit">REGISTER</button>
     </form>
 
-    <%-- Display Error Message --%>
+    <%-- Display Success Message --%>
+    <%
+        String success = request.getParameter("success");
+        if (success != null && "registered".equals(success)) {
+    %>
+    <p class="success-message">You have successfully been registered! 🎉</p>
+    <%
+        }
+    %>
+
+<%-- Display Error Messages --%>
     <%
         String error = request.getParameter("error");
         if (error != null) {
             if ("email_exists".equals(error)) {
     %>
-    <p style="color: red;">Email already exists! Please try another.</p>
+    <p class="error-message">Email already exists! Please try another.</p>
     <%
     } else if ("invalid_input".equals(error)) {
     %>
-    <p style="color: red;">Invalid input. Please check your details and try again.</p>
+    <p class="error-message">Invalid input. Please check your details and try again.</p>
     <%
             }
         }
     %>
 
-    <p>Already have an account?<a href="login.jsp">Log in here</a></p>
+
+    <!-- Link to Login Page -->
+    <p>Already have an account? <a href="login.jsp">Log in here</a></p>
 </div>
 
 </body>

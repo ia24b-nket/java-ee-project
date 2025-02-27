@@ -25,13 +25,13 @@ public class TaskServlet extends HttpServlet {
         String endTimeStr = request.getParameter("endTime");
         boolean completed = request.getParameter("completed") != null;
 
-        HttpSession session = request.getSession();
-        String username = (String) session.getAttribute("username");
-
-        System.out.println("DEBUG: Received title = " + title);
-        System.out.println("DEBUG: Received startTime = " + startTimeStr);
-        System.out.println("DEBUG: Received endTime = " + endTimeStr);
-        System.out.println("DEBUG: Received completed = " + completed);
+        // Get userId from session
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("userId") == null) {
+            response.sendRedirect("login.jsp");
+            return;
+        }
+        Integer userId = (Integer) session.getAttribute("userId");
 
         Connection conn = null;
         try {
@@ -41,13 +41,12 @@ public class TaskServlet extends HttpServlet {
             TaskDAO taskDAO = new TaskDAO(conn);
 
             // Handle File Upload
-            InputStream fileContent = null;
             byte[] fileData = null;
             Part filePart = request.getPart("file");
             if (filePart != null && filePart.getSize() > 0) {
-                fileContent = filePart.getInputStream();
-                fileData = IOUtils.toByteArray(fileContent);
-                System.out.println("DEBUG: File uploaded with size = " + fileData.length);
+                try (InputStream fileContent = filePart.getInputStream()) {
+                    fileData = IOUtils.toByteArray(fileContent);
+                }
             }
 
             // Create new Task object
@@ -59,21 +58,18 @@ public class TaskServlet extends HttpServlet {
             newTask.setCompleted(completed);
             newTask.setFileData(fileData);
 
-            // Insert Task into DB
-            boolean success = taskDAO.insertTask(newTask, username);
+            // Insert Task into DB with userId
+            boolean success = taskDAO.insertTask(newTask, userId);
 
             if (success) {
-                System.out.println("DEBUG: Task successfully saved to DB");
+                conn.commit(); // Commit transaction
                 response.sendRedirect("dashboard.jsp");
             } else {
-                System.out.println("DEBUG: Failed to save task to DB");
+                conn.rollback(); // Rollback if insert failed
                 response.sendRedirect("newTask.jsp?error=1");
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
-            response.sendRedirect("error.jsp?message=" + e.getMessage());
-        } catch (Exception e) {
             e.printStackTrace();
             response.sendRedirect("error.jsp?message=" + e.getMessage());
         } finally {
